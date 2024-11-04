@@ -3,6 +3,34 @@ import argparse
 from ofrak import *
 from ofrak.core import *
 
+from gradio_client import Client, file, handle_file # Is it ok to use other librarys?
+from pydub import AudioSegment
+async def gradio_get_ai_voice(output_name: str,text: str, ref_voice_dir: str):
+    """
+    Generate an ai voice with the F5-TTS gradio app.
+
+    :param text: The text for the model to generate.
+    :param ref_voice_dir: The path to the refrence voice, mp3 or wav.
+    """
+    client = Client("http://0.0.0.0:7860") # Local url to the gradio instance.
+    # pip install git+https://github.com/SWivid/F5-TTS.git
+    # f5-tts_infer-gradio --port 7860 --host 0.0.0.0
+
+    result=client.predict(
+    ref_audio_orig=handle_file(str(ref_voice_dir)),
+    ref_text="", # set to manually define the text in the refrence audio
+    gen_text=text,
+    model="F5-TTS", # F5-TTS is the only real model you can use.
+    remove_silence=False, # Remove silence between batches the model generates.
+    cross_fade_duration=0.15, # Fade in for the time between batches the model generates.
+    speed=1, # speed of the output afaik
+    api_name="/infer"
+    )
+    wav_data = open(mode="rb",file=result[0]).read()
+    seg=AudioSegment.from_wav(BytesIO(wav_data))
+    seg.export(out_f = output_name, format="wav")
+
+    # USAGE: await gradio_get_ai_voice(f"Harris {i}.wav",harris_raw.decode(), "/home/ubuntu/projects/max_cordyceps/assets/voices/Kamala_Harris.wav")
 
 async def main(ofrak_context: OFRAKContext, debate_archive_path: str):
     root_resource = await ofrak_context.create_root_resource_from_file(
@@ -10,7 +38,7 @@ async def main(ofrak_context: OFRAKContext, debate_archive_path: str):
     )
     await root_resource.unpack_recursively()
     zip_archive = await root_resource.view_as(ZipArchive)
-    for question_path in await zip_archive.list_dir():
+    for i,question_path in enumerate(await zip_archive.list_dir()):
         question = await zip_archive.get_entry(question_path)
         question_dir = await question.resource.view_as(Folder)
         print(question_dir)
@@ -23,11 +51,15 @@ async def main(ofrak_context: OFRAKContext, debate_archive_path: str):
         trump_answer = await question_dir.get_entry("trump_answer")
         trump_raw = await trump_answer.resource.get_data()
         print(trump_raw.decode(), end="\n\n")
+        print("=====GENERATING TRUMP WAV======")
+        await gradio_get_ai_voice(f"Trump {i}.wav",trump_raw.decode(), "")
 
         print("=====HARRIS RESPONSE=====")
         harris_answer = await question_dir.get_entry("harris_answer")
         harris_raw = await harris_answer.resource.get_data()
         print(harris_raw.decode(), end="\n\n")
+        print("=====GENERATING HARRIS WAV======")
+        await gradio_get_ai_voice(f"Harris {i}.wav",harris_raw.decode(), "")
 
 
 if __name__ == "__main__":
