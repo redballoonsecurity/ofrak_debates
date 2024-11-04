@@ -1,4 +1,3 @@
-ofrak>=3.2.0.post0
-pydub>=0.25.1
-gradio-client>=1.4.2
+ofrak~=3.2.0.post0
+pydub~=0.25.1
 git+https://github.com/SWivid/F5-TTS.git

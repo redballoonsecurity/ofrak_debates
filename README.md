@@ -3,21 +3,27 @@
 Process debate archives and generate AI voices locally for responses using [F5-TTS](https://github.com/SWivid/F5-TTS). It extracts question-answer pairs from a zip archive and creates corresponding audio files for each response.
 
 ## Installation
+1. Clone the repo:
 
-1. Create and activate a virtual environment:
+```bash
+git clone https://github.com/redballoonsecurity/ofrak_debates.git 
+cd ofrak_debates
+```
+
+2. Create and activate a virtual environment (assuming Linux):
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  
 ```
 
-2. Install the required packages:
+3. Install the required packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Start the [F5-TTS](https://github.com/SWivid/F5-TTS) Gradio server:
+4. Start the [F5-TTS](https://github.com/SWivid/F5-TTS) Gradio server:
 
 ```bash
 f5-tts_infer-gradio --port 7860 --host 0.0.0.0 # first time run will download the model files.
@@ -50,8 +56,8 @@ debate.zip
 ### Output
 
 The script generates WAV files for each response:
-- `Question i/Trump.wav` - Trump's response for question i
-- `Question i/Harris.wav` - Harris's response for question i
+- `Questions/Question-i/Trump.wav` - Trump's response for question i
+- `Questions/Question-i/Harris.wav` - Harris's response for question i
 
 ## Configuration
 
