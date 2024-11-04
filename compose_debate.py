@@ -1,3 +1,4 @@
+import json
 import textwrap
 
 from ofrak import *
@@ -13,29 +14,30 @@ async def main(ofrak_context: OFRAKContext):
     )
     filesystem_view = await root_resource.view_as(FilesystemRoot)
 
-    for i in range(1, 11):
+    question_resource = await ofrak_context.create_root_resource("", b"")
+    await question_resource.run(
+        LlmAnalyzer,
+        LlmAnalyzerConfig(
+            api_url="http://localhost:11434/api/chat",
+            model="llama3.2",
+            prompt="Ask ten questions of the presidential candidate. Do not explain why you asked the question, simply ask the question. Do not address a specific person when asking the question. Ask one question on each line.",
+            system_prompt="You are a moderator for the 2024 US Presidential Debate.",
+        ),
+    )
+    all_questions = question_resource.get_attributes(LlmAttributes).description
+    questions = [q.strip() for q in all_questions.splitlines() if q]
+    for i, question in enumerate(questions):
         child = await filesystem_view.add_file(
-            f"question_{i}/question",
+            f"question_{i + 1}/question",
             data=b"",
         )
         await child.run(
-            LlmAnalyzer,
-            LlmAnalyzerConfig(
-                api_url="http://localhost:11434/api/chat",
-                model="llama3.2",
-                prompt="Ask a question of the presidential candidate. Do not explain why you asked the question, simply ask the question. Do not address a specific person when asking the question",
-                system_prompt="You are a moderator for the 2024 US Presidential Debate.",
-            ),
-        )
-        question = child.get_attributes(LlmAttributes).description
-        await child.run(
             BinaryExtendModifier, BinaryExtendConfig(wrap_text(question).encode())
         )
-        await child.identify()
 
         # Harris Resposne
         harris_answer = await filesystem_view.add_file(
-            f"question_{i}/harris_answer",
+            f"question_{i + 1}/harris_answer",
             data=b"",
         )
         await harris_answer.run(
@@ -59,7 +61,7 @@ async def main(ofrak_context: OFRAKContext):
 
         # Trump Response
         trump_answer = await filesystem_view.add_file(
-            f"question_{i}/trump_answer",
+            f"question_{i + 1}/trump_answer",
             data=b"",
         )
         await trump_answer.run(
@@ -68,7 +70,7 @@ async def main(ofrak_context: OFRAKContext):
                 api_url="http://localhost:11434/api/chat",
                 model="llama3.2",
                 prompt=question,
-                system_prompt="You are an actor playing  Donald Trump in a presidential debate. Do not break character.",
+                system_prompt="You are an actor playing Donald Trump in a presidential debate. Do not break character.",
             ),
         )
         await trump_answer.run(
