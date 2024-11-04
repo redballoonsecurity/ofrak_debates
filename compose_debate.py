@@ -13,7 +13,7 @@ async def main(ofrak_context: OFRAKContext):
     )
     filesystem_view = await root_resource.view_as(FilesystemRoot)
 
-    for i in range(1, 3):
+    for i in range(1, 11):
         child = await filesystem_view.add_file(
             f"question_{i}/question",
             data=b"",
@@ -80,9 +80,6 @@ async def main(ofrak_context: OFRAKContext):
             ),
         )
         await trump_answer.identify()
-
-    # server = await open_gui("127.0.0.1", 8081, focus_resource=root_resource, ofrak_context=ofrak_context, open_in_browser=True)
-    # await server.run_until_cancelled()
 
     root_resource.add_tag(ZipArchive)
     await root_resource.save()
