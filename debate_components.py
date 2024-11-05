@@ -109,7 +109,7 @@ class TTSAnalyzer(Analyzer[TTSAnalyzerConfig, WavFile]):
             model="F5-TTS",  # F5-TTS is the only real model you can use.
             remove_silence=False,  # Remove silence between batches the model generates.
             cross_fade_duration=0.15,  # Fade in for the time between batches the model generates.
-            speed=1,  # speed of the output afaik
+            speed=1.2,  # speed of the output afaik
             api_name="/infer",
         )
         wav_data = open(mode="rb", file=result[0]).read()
