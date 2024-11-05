@@ -1,6 +1,7 @@
 What is your plan to address the rising national debt and reduce it within the next decade?
 How do you intend to balance economic growth with increasing income inequality in the United States?
 What steps would you take to strengthen America's alliances and partnerships in a rapidly changing global landscape?
+What are your thoughts on the White House's recent recommendations to use memory-safe languages such as Rust in software development?
 How do you propose addressing climate change, particularly in regards to reducing carbon emissions and transitioning to renewable energy sources?
 What is your stance on gun control and would you support stricter regulations in the wake of mass shootings?
 How would you reform the current healthcare system to make it more affordable and accessible to all Americans?
