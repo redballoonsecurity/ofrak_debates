@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from gradio_client import Client, handle_file
 from ofrak.core import *
-from ofrak.core.llm import *
+from ofrak.core.llm import LlmAnalyzer, LlmAttributes, LlmAnalyzerConfig
 from ofrak.model.component_model import CC
 
 
@@ -25,6 +25,10 @@ class AnswerQuestionModifier(Modifier[AnswerQuestionConfig]):
     async def modify(self, resource: Resource, config: AnswerQuestionConfig):
         """
         Answer question, add it to firmware object, and generate and run a wave file.
+
+        1. Run LlmAnalyzer to answer the provided question.
+        2. Run BinaryExtendModifier to append the response to the resource.
+        3. Run TTSAnalyzer to generate a Wavfile.
         """
         await resource.save()
         person = await resource.view_as(Person)
@@ -69,6 +73,7 @@ class TTSAnalyzerConfig(ComponentConfig):
 
 class TTSAnalyzer(Analyzer[TTSAnalyzerConfig, WavFile]):
     """
+
     Analyze a binary blob to extract its mimetype and magic description.
     """
 
@@ -106,10 +111,11 @@ class TTSAnalyzer(Analyzer[TTSAnalyzerConfig, WavFile]):
             api_name="/infer",
         )
         wav_data = open(mode="rb", file=result[0]).read()
-        print(f"[+] Convestion complete")
+        print(f"[+] Conversion complete")
         return WavFile(wav_data)
 
     async def _run(self, resource: Resource, config: CC):
+        # Remove component, so that the analyzer can be rerun again.
         if resource.has_component_run(self.get_id()):
             print("Removing!")
             resource.remove_component(self.get_id())
