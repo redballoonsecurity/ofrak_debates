@@ -17,6 +17,8 @@ class Person(ResourceView):
 class AnswerQuestionConfig(ComponentConfig):
     question: str
     tts_client_url: str
+    ollama_model: str
+    ollama_url: str = "http://localhost:11434/api/chat"
 
 
 class AnswerQuestionModifier(Modifier[AnswerQuestionConfig]):
@@ -38,8 +40,8 @@ class AnswerQuestionModifier(Modifier[AnswerQuestionConfig]):
         await resource.run(
             LlmAnalyzer,
             LlmAnalyzerConfig(
-                api_url="http://localhost:11434/api/chat",
-                model="llama3.2",
+                api_url=config.ollama_url,
+                model=config.ollama_model,
                 prompt=config.question,
                 system_prompt=f"You are an actor playing {person.name} in a presidential debate. Do not break character.",
             ),
